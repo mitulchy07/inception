@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD_FILE
+    volumes:
+      - wordpress_db:/var/lib/mysql
+    networks:
+      - inception-net
+
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - mariadb
+    environment:
+      - WORDPRESS_DB_HOST=mariadb
+      - WORDPRESS_DB_NAME=${MYSQL_DATABASE}
+      - WORDPRESS_DB_USER=${MYSQL_USER}
+      - WORDPRESS_DB_PASSWORD_FILE=${MYSQL_PASSWORD_FILE}
+    volumes:
+      - wordpress_files:/var/www/html
+    networks:
+      - inception-net
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8443:443"
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress_files:/var/www/html:ro
+    networks:
+      - inception-net
+
+volumes:
+  wordpress_files:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/hchowdhu/data/wordpress_files
+      o: bind
+  wordpress_db:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/hchowdhu/data/wordpress_db
+      o: bind
+
+networks:
+  inception-net:
+    driver: bridge
