@@ -1,18 +1,19 @@
 NAME = inception
 SRC = srcs
+COMPOSE = docker compose -p $(NAME) -f $(SRC)/docker-compose.yml
 
 .PHONY: all build up down clean fclean re logs
 
 all: build up
 
 build:
-	docker compose -f $(SRC)/docker-compose.yml build --parallel
+	$(COMPOSE) build --parallel
 
 up:
-	docker compose -f $(SRC)/docker-compose.yml up -d
+	$(COMPOSE) up -d
 
 down:
-	docker compose -f $(SRC)/docker-compose.yml down
+	$(COMPOSE) down
 
 clean: down
 
@@ -23,4 +24,4 @@ fclean: clean
 re: fclean all
 
 logs:
-	docker compose -f $(SRC)/docker-compose.yml logs -f
+	$(COMPOSE) logs -f

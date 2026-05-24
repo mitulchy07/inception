@@ -1,7 +1,6 @@
-version: "3.8"
-
 services:
   mariadb:
+    image: mariadb
     build: ./requirements/mariadb
     container_name: mariadb
     restart: unless-stopped
@@ -11,12 +10,16 @@ services:
       - MYSQL_DATABASE
       - MYSQL_USER
       - MYSQL_PASSWORD_FILE
+    secrets:
+      - db_root_password
+      - db_password
     volumes:
       - wordpress_db:/var/lib/mysql
     networks:
       - inception-net
 
   wordpress:
+    image: wordpress
     build: ./requirements/wordpress
     container_name: wordpress
     restart: unless-stopped
@@ -28,17 +31,22 @@ services:
       - WORDPRESS_DB_NAME=${MYSQL_DATABASE}
       - WORDPRESS_DB_USER=${MYSQL_USER}
       - WORDPRESS_DB_PASSWORD_FILE=${MYSQL_PASSWORD_FILE}
+      - WORDPRESS_CREDENTIALS_FILE=/run/secrets/wordpress_credentials
+    secrets:
+      - db_password
+      - wordpress_credentials
     volumes:
       - wordpress_files:/var/www/html
     networks:
       - inception-net
 
   nginx:
+    image: nginx
     build: ./requirements/nginx
     container_name: nginx
     restart: unless-stopped
     ports:
-      - "8443:443"
+      - "${HOST_HTTPS_PORT:-443}:443"
     depends_on:
       - wordpress
     volumes:
@@ -63,3 +71,11 @@ volumes:
 networks:
   inception-net:
     driver: bridge
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  wordpress_credentials:
+    file: ../secrets/credentials.txt

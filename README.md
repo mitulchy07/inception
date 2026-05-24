@@ -7,6 +7,8 @@ This project demonstrates a small Docker-based infrastructure for running a
 WordPress site with MariaDB and an NGINX TLS reverse proxy. It follows the
 42-school requirements: each service runs in its own container, uses Debian-based
 images, named Docker volumes for persistence, and Docker Compose orchestration.
+The final stack exposes only HTTPS on port 443 and automatically installs
+WordPress with one administrator and one regular user.
 
 ## Instructions
 From the repository root:
@@ -26,6 +28,8 @@ directory (ignored by git).
   NGINX (TLS termination).
 - Volumes: persistent storage is implemented as named volumes mapped to
   `/home/hchowdhu/data/...` on the host (driver local with bind).
+- Service images are named after the service itself: `mariadb`, `wordpress`,
+  and `nginx`.
 
 ### Design choices and comparisons
 - Virtual Machines vs Docker: Docker provides lightweight isolation and faster
@@ -42,8 +46,8 @@ directory (ignored by git).
 ## Resources
 - Docker docs: https://docs.docker.com/
 - WordPress docs: https://wordpress.org/support/
+- WP-CLI docs: https://wp-cli.org/
 
 ## AI usage
 AI was used to scaffold the initial project files and provide example Dockerfiles
-and documentation. All generated content must be reviewed and adapted by the
-student before submission.
+and documentation.
