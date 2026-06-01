@@ -37,7 +37,7 @@ wp core config --allow-root \
 	--dbname="$WORDPRESS_DB_NAME" \
 	--dbuser="$WORDPRESS_DB_USER" \
 	--dbpass="$db_password" \
-	--dbhost="$WORDPRESS_DB_HOST" \
+	--dbhost="$WORDPRESS_DB_HOST:3306" \
 	--skip-check \
 	--force
 

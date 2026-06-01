@@ -6,17 +6,17 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - MYSQL_ROOT_PASSWORD_FILE
-      - MYSQL_DATABASE
-      - MYSQL_USER
-      - MYSQL_PASSWORD_FILE
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_root_password
       - db_password
     volumes:
-      - wordpress_db:/var/lib/mysql
+      - mariadb:/var/lib/mysql
     networks:
-      - inception-net
+      - inception
 
   wordpress:
     image: wordpress
@@ -27,18 +27,18 @@ services:
     depends_on:
       - mariadb
     environment:
-      - WORDPRESS_DB_HOST=mariadb
-      - WORDPRESS_DB_NAME=${MYSQL_DATABASE}
-      - WORDPRESS_DB_USER=${MYSQL_USER}
-      - WORDPRESS_DB_PASSWORD_FILE=${MYSQL_PASSWORD_FILE}
-      - WORDPRESS_CREDENTIALS_FILE=/run/secrets/wordpress_credentials
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORDPRESS_CREDENTIALS_FILE: /run/secrets/wordpress_credentials
     secrets:
       - db_password
       - wordpress_credentials
     volumes:
-      - wordpress_files:/var/www/html
+      - wordpress:/var/www/html
     networks:
-      - inception-net
+      - inception
 
   nginx:
     image: nginx
@@ -50,26 +50,27 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - wordpress_files:/var/www/html:ro
+      - wordpress:/var/www/html:ro
     networks:
-      - inception-net
+      - inception
 
 volumes:
-  wordpress_files:
+  mariadb:
     driver: local
     driver_opts:
       type: none
-      device: /home/hchowdhu/data/wordpress_files
       o: bind
-  wordpress_db:
+      device: /home/${USER}/data/mariadb
+
+  wordpress:
     driver: local
     driver_opts:
       type: none
-      device: /home/hchowdhu/data/wordpress_db
       o: bind
+      device: /home/${USER}/data/wordpress
 
 networks:
-  inception-net:
+  inception:
     driver: bridge
 
 secrets:

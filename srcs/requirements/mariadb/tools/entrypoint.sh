@@ -25,10 +25,10 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql --skip-test-db --auth-root-authentication-method=normal >/dev/null
 fi
 
-mariadbd --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock --bind-address=0.0.0.0 &
+mariadbd --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306 &
 server_pid=$!
 
-until mysqladmin --protocol=socket --socket=/run/mysqld/mysqld.sock ping >/dev/null 2>&1; do
+until mysqladmin -u root -P 3306 --protocol=socket --socket=/run/mysqld/mysqld.sock ping >/dev/null 2>&1; do
 	sleep 1
 done
 
@@ -47,7 +47,7 @@ GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 SQL
 
-mysqladmin --protocol=socket --socket=/run/mysqld/mysqld.sock -uroot --password="$root_password" shutdown
+mysqladmin --protocol=socket --socket=/run/mysqld/mysqld.sock -uroot --password="$root_password" -P 3306 shutdown
 wait "$server_pid" || true
 
-exec mariadbd --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock --bind-address=0.0.0.0
+exec mariadbd --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock --bind-address=0.0.0.0 --port=3306
