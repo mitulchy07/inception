@@ -17,7 +17,7 @@ From the repository root:
 make all
 ```
 
-This builds images and starts the stack. Use `make down` to stop it and `make fclean`
+This builds images and starts the stack. Use `make clean` to stop it and `make fclean`
 to remove the named volumes created by this project.
 
 Configuration values are in `srcs/.env` and secrets are kept in the `secrets/`

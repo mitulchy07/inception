@@ -15,7 +15,7 @@ make all
 Stop:
 
 ```bash
-make down
+make clean
 ```
 
 Remove volumes (data):
